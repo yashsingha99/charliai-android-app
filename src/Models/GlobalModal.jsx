@@ -11,6 +11,8 @@ import {
 import { Button } from "../Components/ui/button";
 import { Input } from "../Components/ui/input";
 import CircularSpinner from "../Components/ui/spinner";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const URI = import.meta.env.VITE_APP_URL;
 
@@ -23,6 +25,8 @@ export default function GlobalModal() {
     about: "",
     file: "",
   });
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const handler = async () => {
     const sessionId = localStorage.getItem("sessionId");
@@ -35,17 +39,18 @@ export default function GlobalModal() {
     try {
       setIsLoading(true);
 
-      const res =  await axios.post(`${URI}/api/createCharacter`, {
+      const res = await axios.post(`${URI}/api/createCharacter`, {
         ...character,
         sessionId,
       });
-      console.log(res);
-      setNewCreatedId(res.data._id);
-      // Character created successfully
+      toast.success("Character created successfully");
+      setNewCreatedId((prev) => !prev); 
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set("chatId", res.data._id);
+      navigate(`?${newParams.toString()}`);
       closeModal();
     } catch (error) {
       console.error("❌ Failed to create character:", error);
-      // Optional: show toast or error state here
     } finally {
       setIsLoading(false);
       setCharacter({
@@ -55,6 +60,7 @@ export default function GlobalModal() {
       });
     }
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={closeModal}>
@@ -90,10 +96,16 @@ export default function GlobalModal() {
             }
           />
 
-          <Button type="submit" className="w-full flex items-center justify-center">
+          <Button
+            type="submit"
+            className="w-full flex items-center justify-center"
+          >
             {isLoading ? (
               <>
-                <CircularSpinner backgroundColor="white" classStyle="w-[1.5px] h-[12px]" />
+                <CircularSpinner
+                  backgroundColor="white"
+                  classStyle="w-[1.5px] h-[12px]"
+                />
               </>
             ) : (
               "Create"

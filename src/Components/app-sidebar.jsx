@@ -1,5 +1,13 @@
 import * as React from "react";
-import { GalleryVerticalEnd, Minus, Pencil, Plus } from "lucide-react";
+import {
+  Ellipsis,
+  GalleryVerticalEnd,
+  Minus,
+  Moon,
+  Pencil,
+  Plus,
+  Sun,
+} from "lucide-react";
 
 import { SearchForm } from "./search-form";
 import {
@@ -24,7 +32,10 @@ import {
 import { useModal } from "../Models/ModalContext";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
+import { PopoverDemo } from "./popoverSidebar";
+import { Button } from "./ui/button";
+import { useTheme } from "../context/theme-comtext";
+import {CommandMenu} from "./searchCommand";
 // Replace with your actual base URL
 const URI = import.meta.env.VITE_APP_URL;
 
@@ -34,7 +45,7 @@ export default function AppSidebar() {
   const [historyWithQ, setHistoryWithQ] = React.useState([]);
   const [searchParams] = useSearchParams();
   const [isSidebarOpen, setSidebarOpen] = React.useState(true);
-  // const selectedChatId = searchParams.get("chatId");
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   React.useEffect(() => {
     const fetchChats = async () => {
@@ -95,16 +106,33 @@ export default function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => navigate("/")} size="lg" asChild>
-              <a href="#">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <GalleryVerticalEnd className="size-4" />
+            <SidebarMenuButton  size="lg" asChild>
+              <div className="flex items-center justify-between w-full">
+                <div onClick={() => navigate("/")} className="flex items-center gap-2">
+                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                    <GalleryVerticalEnd className="size-4" />
+                  </div>
+                  <div className="flex gap-0.5 leading-none text-xl font-bold">
+                    <span className="text-blue-600">Charli</span>
+                    <span className=" dark:text-white">AI</span>
+                  </div>
                 </div>
-                <div className="flex gap-0.5 leading-none text-xl font-bold">
-                  <span className="text-blue-600">Charli</span>
-                  <span className="text-black">AI</span>
-                </div>
-              </a>
+
+                <Button
+                  onClick={() => {
+                    if (theme === "dark") setTheme("light");
+                    else setTheme("dark");
+                  }}
+                  variant="outline"
+                  size="icon"
+                >
+                  {theme === "light" ? (
+                    <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                  ) : (
+                    <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                  )}
+                </Button>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -117,18 +145,14 @@ export default function AppSidebar() {
           <span>New Character</span>
         </SidebarMenuButton>
 
-        <SearchForm />
+        {/* <SearchForm /> */}
+        <CommandMenu history={history} />
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
             {history.map((item, index) => {
-              const historyEntry = historyWithQ.find(
-                (h) => h.characterId === item._id
-              );
-              // console.log(historyEntry);
-
               return (
                 <Collapsible
                   key={item._id}
@@ -138,41 +162,23 @@ export default function AppSidebar() {
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton
-                        onClick={() => {
-                          handleClick(item._id);
-                        }}
+                        className={`flex items-center justify-between `}
                       >
-                        <span className="truncate max-w-[140px] overflow-hidden whitespace-nowrap">
-                          {item.name}
-                        </span>
+                        <div
+                          onClick={() => {
+                            handleClick(item._id);
+                          }}
+                          className="w-[90%] truncate max-w-[140px] overflow-hidden whitespace-nowrap"
+                        >
+                          <span className="truncate max-w-[140px]  overflow-hidden whitespace-nowrap">
+                            {item.name}
+                          </span>
+                        </div>
 
-                        <Plus
-                          // onClick={(e) => {
-                          //   e.stopPropagation();
-                          //   handleFetch(item._id);
-                          // }}
-                          className="ml-auto group-data-[state=open]/collapsible:hidden"
-                        />
-                        <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                        <PopoverDemo id={item._id} />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
 
-                    {/* {historyEntry.questions.length ? (
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {historyEntry.questions.map((q) => (
-                            <SidebarMenuSubItem key={q?._id}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={q?.isActive}
-                              >
-                                {q?.question}
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    ) : null} */}
                   </SidebarMenuItem>
                 </Collapsible>
               );

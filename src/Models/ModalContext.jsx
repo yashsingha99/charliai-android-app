@@ -4,7 +4,7 @@ const ModalContext = createContext(null);
 
 export const ModalProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [newCreatedId, setNewCreatedId] = useState("");
+  const [newCreatedId, setNewCreatedId] = useState(false);
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);

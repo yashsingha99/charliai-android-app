@@ -3,19 +3,20 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
-import { ScrollArea } from "./ui/scroll-area";
+import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import { toast, Toaster } from "sonner";
-import { Send, User } from "lucide-react";
+import { Plus, Send, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import CircularSpinner from "./ui/spinner";
-
-const URI = import.meta.env.VITE_APP_URL  
+import { useModal } from "../Models/ModalContext";
+const URI = import.meta.env.VITE_APP_URL;
 
 export default function Chat() {
   const [question, setQuestion] = useState("");
+  const { openModal, newCreatedId } = useModal();
   const [qaHistory, setQaHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -78,7 +79,7 @@ export default function Chat() {
   return (
     <>
       <Toaster />
-      <Card className="flex h-full flex-col">
+      <Card className="flex h-full flex-col dark:bg-dark light:bg-white/80">
         <ScrollArea
           className="flex-1 p-4"
           style={{ height: "calc(100% - 80px)" }}
@@ -92,34 +93,45 @@ export default function Chat() {
               <p className="max-w-sm text-sm">
                 Send messages to communicate with you character.
               </p>
+              {!selectedChatId && (
+                <>
+                  <Button
+                    onClick={openModal}
+                    className="mt-4"
+                    variant="outline"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>New Character</span>
+                  </Button>
+                </>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
               {qaHistory.map((qa, index) => (
                 <div key={qa._id}>
-                  <div className="flex gap-3 text-sm flex-row-reverse">
-                    <div className="flex flex-col gap-1">
-                      <div className="rounded-lg bg-muted px-4 py-3">
-                        {qa.question}
-                      </div>
+                  <div className="flex justify-end">
+                    <div className="rounded-lg bg-muted px-4 py-3 text-sm text-foreground max-w-md">
+                      {qa.question}
                     </div>
                   </div>
 
-                  <div className="flex gap-3 text-sm flex-row">
-                    <div className="flex mt-4 flex-col gap-1 w-full">
-                      <div
-                        className="rounded-lg bg-muted px-4 py-3"
-                        dangerouslySetInnerHTML={{ __html: qa.answer }}
-                      />
-                    </div>
-                  </div>
+                  <ScrollArea className="w-[90%] text-sm mt-4 rounded-md border border-border bg-muted p-3 overflow-x-auto">
+                    {/* <div className="w-max min-w-full"> */}
+                    <div
+                      className="prose dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: qa.answer }}
+                    />
+                    {/* </div> */}
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                 </div>
               ))}
               {generating && (
                 <div className=" flex justify-center py-4 text-muted-foreground animate-pulse">
-                   {/* Generating... */}
-                <CircularSpinner backgroundColor={"red"} />
-                 </div>
+                  {/* Generating... */}
+                  <CircularSpinner backgroundColor={"red"} />
+                </div>
               )}
             </div>
           )}
@@ -134,7 +146,7 @@ export default function Chat() {
               <Input
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Type a message..."
+                placeholder="Ask anything"
                 className="flex-1"
                 autoFocus
               />
@@ -145,7 +157,7 @@ export default function Chat() {
           </div>
         )}
       </Card>
-        <div ref={chatBoxRef} />
+      <div ref={chatBoxRef} />
     </>
   );
 }

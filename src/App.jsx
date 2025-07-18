@@ -20,6 +20,7 @@ import {
   SidebarTrigger,
 } from "./Components/ui/sidebar";
 import Chat  from "./Components/chat";
+import { Toaster } from "sonner";
 const URI = import.meta.env.VITE_APP_URL;
 export async function getOrCreateSession() {
   try {
@@ -80,14 +81,16 @@ export default function App() {
   if (loading) return <>Loading...</>;
 
   return (
-    <SidebarProvider className="flex h-screen w-screen bg-background overflow-hidden">
+    <>
+    <Toaster />
+     <SidebarProvider className="flex h-screen w-screen bg-background overflow-hidden">
       {/* Sidebar */}
       <AppSidebar />
 
       {/* Main Content */}
       <SidebarInset className="flex flex-col flex-1 overflow-hidden">
         {/* Fixed Header */}
-        <header className="h-16 flex items-center gap-2 border-b bg-white/80 backdrop-blur px-4 ">
+        <header className="h-16 flex items-center gap-2 border-b bg-card text-card-foreground  backdrop-blur px-4 ">
 
           <SidebarTrigger className="-ml-1" />
           <Separator
@@ -98,7 +101,7 @@ export default function App() {
             <BreadcrumbList>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage className="text-gray-500 text-xl">
+                <BreadcrumbPage className="text-gray-500 text-xl truncate max-w-[140px] overflow-hidden whitespace-nowrap">
                   {chatName ? chatName.toUpperCase() : "Character"}
                 </BreadcrumbPage>
               </BreadcrumbItem>
@@ -107,10 +110,11 @@ export default function App() {
         </header>
 
         {/* Main Chat Section */}
-        <main className=" flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto">
           <Chat />
         </main>
       </SidebarInset>
-    </SidebarProvider>
+    </SidebarProvider></>
+   
   );
 }
