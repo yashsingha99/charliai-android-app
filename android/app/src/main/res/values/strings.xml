@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">charliai</string>
+    <string name="title_activity_main">charliai</string>
+    <string name="package_name">com.charliai.app</string>
+    <string name="custom_url_scheme">com.charliai.app</string>
+</resources>
